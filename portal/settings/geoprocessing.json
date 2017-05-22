@@ -1,0 +1,86 @@
+{"service": [
+  {
+    "name":"colorgrade",
+    "info":"this service provide tasks for colorgrade analytics",
+    "task":[
+      {
+        "name":"berrycolor_workflow",
+        "info":"task for direct interpolation of high and low density colorgrade data",
+        "location":"pysdss.analytics.colorgrade.colorgrade",
+        "type":"async",
+        "input":[
+          {"name":"datasetid", "info":"the dataset id","type":"parameter", "required":true, "default":"","choicelist":[]},
+          {"name":"average_point_distance", "info":"this number is use to decide how to rasterize the rows and the search radius when for the inverse distance is applied", "type":"parameter","required":false, "default":"","choicelist":[]},
+          {"name":"grid", "info":"the grid with format {'minx': ,'maxx': ,'miny': ,'maxy': ,'delty': , 'deltx': }","type":"parameter", "required":false, "default":"","choicelist":[]},
+          {"name":"rowdirection", "info":"the dataset id", "required":true, "default":"x","choicelist":[]},
+          {"name":"area_multiplier", "info":"used to increase the interpolation grid resolution, use 2 to halve the pixel size","type":"parameter", "required":false, "default":2,"choicelist":[]},
+          {"name":"project", "info":"epsg string for data reprojection", "type":"parameter","required":false, "default":32611,"choicelist":[]},
+          {"name":"buffersize", "info":"the buffersize for buffered polylines","type":"parameter", "required":false, "default":0.25,"choicelist":[]}
+        ],
+        "output":[{"name":"colorgrade_tables", "type":"url"} ]
+      }
+    ]
+  },
+  {
+    "name":"database",
+    "info":"this service provide tasks data upload and database management",
+    "task":[
+      {
+      "name":"upload_berrycolor_data",
+      "info":"task for uploading colorgrade data",
+      "location":"pysdss.database.database",
+      "type":"sync",
+      "input":[
+        {"name":"data", "type":"file","info":"the file to upload","required":true},
+        {"name":"fields", "type":"param","info":"mapping between the data fields and the required fields","required":true}
+      ],
+        "output":[]
+      }
+    ]
+  },
+
+  {
+    "name":"multicriteria",
+    "info":"this service provide tasks for multicriteria analysis",
+    "task":[]
+  },
+  {
+    "name":"geometry",
+    "info":"this service provide tasks for geometry operations, both spatial and aspatial",
+    "task":[
+      {"name":"berrycolor_workflow1"},
+      {"name":"berrycolor_workflow2"},
+      {"name":"berrycolor_workflow3"}
+    ]
+  },
+  {
+    "name":"charting",
+    "info":"this service provide tasks for generating charts",
+    "task":[]
+  },
+  {
+    "name":"synch_asynch_tests",
+    "info":"this service provide synchronous and asynchronous tests",
+    "task":[
+       {
+      "name":"synch",
+      "info":"task for testing synchronous processing",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[],
+      "output":[]
+      },
+      {
+      "name":"asynch",
+      "info":"task for testing asynchronous processing",
+      "location":"portal.tasks",
+      "type":"async",
+      "input":[],
+      "output":[]
+      }
+    ]
+
+  }
+
+]
+}
