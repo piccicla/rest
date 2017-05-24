@@ -67,7 +67,9 @@
       "info":"task for testing synchronous processing",
       "location":"portal.tasks",
       "type":"sync",
-      "input":[],
+      "input":[
+        {"name":"datasetid", "info":"the dataset id","type":"number", "required":true, "default":"","choicelist":[]}
+      ],
       "output":[]
       },
       {
