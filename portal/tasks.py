@@ -20,10 +20,10 @@ def xsum(numbers):
 
 @shared_task
 def synch(*args, **kw):  # the result must be a  list
-    #return hello.synchronous_test_1(*args, **kw)
-    print("ciao")
-    return [{"name":"", "type":"string", "kwargs":[kw]}] #test kw are there
+    return hello.synchronous_test_1(*args, **kw)
+    #print("ciao")
+    #return [{"name":"", "type":"string", "kwargs":[kw]}] #test kw are there
 
 @shared_task
-def asynch(): # the result must be a  list
-    return hello.asynchronous_test_1()
+def asynch(*args, **kw): # the result must be a  list
+    return hello.asynchronous_test_1(*args, **kw)

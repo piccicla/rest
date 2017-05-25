@@ -34,6 +34,9 @@ CELERY_BROKER_URL = "amqp://localhost//"
 CELERY_RESULT_BACKEND ="db+postgresql://claudio:claudio@localhost/grapes"
 
 
+#PROCESSING_SETTINGS_URL = os.path.normpath(os.path.join(os.path.dirname(__file__), '../', "portal/settings/geoprocessing.json"))
+PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
+
 # Application definition
 
 INSTALLED_APPS = [

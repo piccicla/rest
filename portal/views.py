@@ -1,14 +1,32 @@
+# -*- coding: utf-8 -*-
+#-------------------------------------------------------------------------------
+# Name:        views.py
+# Purpose:      the REST endpoints
+#
+#
+# Author:      claudio piccinini
+#
+# Updated:     22/05/2017
+#-------------------------------------------------------------------------------
+
+#   request.data -> contains the POST parameters
+#   request.query_params -> contains the GET parameters
+#   **kw -> contains part of the url as defined in urls.py
+
+###########################################################
+from django.conf import settings
+#this is the url to the json file with the services configuration which is stored in rest/settings.py
+#PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
+PROCESSING_SETTINGS_URL = settings.PROCESSING_SETTINGS_URL
+##########################################################
+
+
 from django.shortcuts import render
 
-# Create your views here.
 import json
 import os
-
 import time
-
 import importlib
-
-
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -20,20 +38,21 @@ from rest.celery import app
 
 import portal.processing as pr
 
-PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
-
-
 
 class APIRootView(APIView):
+    """
+    This is the root of the REST API; this will show an example of REST endpoints
+    accessed by http://localhost:8100/processing/
+    """
     def get(self, request):
         data = {
             'geoservices-list-url': reverse('geoservices-list',   request=request),
-            'geoservice-detail-url': reverse('geoservice-detail',args=['colorgrade'], request=request),
-            'task-detail-url': reverse('task-detail',args=['colorgrade','berrycolor_workflow'],request=request),
-            'execute-sync-url': reverse('execute-sync',args=['colorgrade','berrycolor_workflow'],request=request),
-            'execute-async-url': reverse('execute-async',args=['colorgrade','berrycolor_workflow'],request=request),
-            'job-detail-url': reverse('job-detail',args=['colorgrade','berrycolor_workflow','00000000-0000-0000-0000-000000000000'],request=request),
-            'job-cancel-url': reverse('job-cancel',args=['colorgrade','berrycolor_workflow','00000000-0000-0000-0000-000000000000'],request=request)
+            'geoservice-detail-url': reverse('geoservice-detail',args=['synch_asynch_tests'], request=request),
+            'task-detail-url': reverse('task-detail',args=['synch_asynch_tests','synch'],request=request),
+            'execute-sync-url': reverse('execute-sync',args=['synch_asynch_tests','synch'],request=request),
+            'execute-async-url': reverse('execute-async',args=['synch_asynch_tests','asynch'],request=request),
+            'job-detail-url': reverse('job-detail',args=['synch_asynch_tests','asynch','00000000-0000-0000-0000-000000000000'],request=request),
+            'job-cancel-url': reverse('job-cancel',args=['synch_asynch_tests','asynch','00000000-0000-0000-0000-000000000000'],request=request)
         }
         return Response(data)
 
@@ -154,7 +173,7 @@ class TaskSync(APIView):
 ##################################
 
 #TODO: adapt for post request
-def check_params(s, request):
+def check_params(s, request, verb="get"):
 
     """
     Check the required parameters are available
@@ -180,8 +199,13 @@ def check_params(s, request):
     parameters = {}
     missing = []
     for input in s[0]['input']:  # check all the parameters are passed with the request
-        # check the parameter name
-        param = request.query_params.get(input["name"], None)
+
+        # check the parameter name for get and post request
+        if verb == "get":
+            param = request.query_params.get(input["name"], None)
+        else:
+            param = request.data.get(input["name"], None)
+
         # the parameter is there
         if param:
             # check the type (string or number)
@@ -196,9 +220,14 @@ def check_params(s, request):
         # if the prameter is not there check if not required and there is a default value
         elif not input['required']:
             if input['default']:  # if the parameter is not required there should be a default value
-                parameters[input["name"]] = input['default']
+                if input["type"] == "number":
+                    try:
+                        parameters[input["name"]] = float(input['default'])
+                    except:
+                        missing.append({input["name"]: "parameter should be a number"})
+                #parameters[input["name"]] = input['default']
             else:
-                missing.append({input["name"]: "parameter is missing"})
+                missing.append({input["name"]: "parameter default value is missing from the config file"})
         # param is not there and it is required
         else:
             missing.append({input["name"]: "parameter is missing"})
@@ -210,9 +239,28 @@ def check_params(s, request):
 class TaskSync(APIView):    ##########testing rest parameters
     """
     Start a synchronous task
-    e.g. http://localhost:8100/processing/database/upload_berrycolor_data/executesync/
+    e.g.  http://localhost:8100/processing/synch_asynch_tests/synch/executesync/
     """
     def get(self, request, *args, **kw):
+
+        return self.get_post(request, "get", *args, **kw)
+
+    def post(self, request, *args, **kw):
+        #return Response({"success": True, "content": "Hello World!"})
+        #return Response(request.data)
+
+        return self.get_post(request, "post", *args, **kw)
+
+
+    def get_post(self, request, verb, *args, **kw ):
+        """
+        Handle both GET and POST requests       
+        :param request:  request.data -> contains the POST parameters; request.query_params -> contains the GET parameters
+        :param verb: this is "get" or "post"
+        :param args: 
+        :param kw: contains part of the url as defined in urls.py
+        :return: 
+        """
 
         name = kw['service_name']
         tname = kw['task_name']
@@ -224,23 +272,22 @@ class TaskSync(APIView):    ##########testing rest parameters
         serv = [x['task'] for x in parsed_json['service'] if x['name'] == name]
         if not serv: #serv
             return Response({"success": False,
-                             "content": "service " + kw['service_name'] + " is not available"})
+                             "content": "service " + name + " is not available"})
 
         # check the task exists
         s = [x for x in serv[0] if x['name'] == tname]
         if not s: #s==[]
             return Response({"success": False,
-                             "content": "task " + kw['service_name'] + "/" + kw['task_name'] + " is not available"})
+                             "content": "task " + name + "/" + tname + " is not available"})
 
         if s[0]['type']=='async':
-            return Response({"success": False, "content": "task "+kw['service_name']+"/"+kw['task_name']+ " is asynchronous"})
+            return Response({"success": False, "content": "task " + name + "/" + tname + " is asynchronous"})
 
-        #checking the required parameters are available
+        #checking the required parameters are available in the GET or POST request
         #parameters is a dictionary "parameter name": "value"
         #missing is a list of dictionaries, each dictionary is "parameter name": "parameter should be a number"  or
         #"parameter name": "parameter is missing"
-
-        parameters, missing = check_params(s, request)
+        parameters, missing = check_params(s, request,verb)
 
         if missing:  #if some parameters are missing or the type is wrong (number instead of string)
             return Response({"success": False, "content": missing})
@@ -274,14 +321,26 @@ class TaskSync(APIView):    ##########testing rest parameters
 
 ###################################
 
-
 class TaskAsync(APIView):
     """
     Start an asynchronous task
-    
+    e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/executeasync/
     """
     def get(self, request, *args, **kw):
+        return self.get_post(request, "get", *args, **kw)
 
+    def post(self, request, *args, **kw):
+        return self.get_post(request, "post", *args, **kw)
+
+    def get_post(self, request, verb, *args, **kw ):
+        """
+        Handle both GET and POST requests       
+        :param request:  request.data -> contains the POST parameters; request.query_params -> contains the GET parameters
+        :param verb: this is "get" or "post"
+        :param args: 
+        :param kw: contains part of the url as defined in urls.py
+        :return: 
+        """
         name = kw['service_name']
         tname = kw['task_name']
 
@@ -292,25 +351,40 @@ class TaskAsync(APIView):
         serv = [x['task'] for x in parsed_json['service'] if x['name'] == name]
         if not serv: #serv
             return Response({"success": False,
-                             "content": "service " + kw['service_name'] + " is not available"})
+                             "content": "service " + name + " is not available"})
         # check the task exists
         s = [x for x in serv[0] if x['name'] == tname]
-        if not s: #s==[]
+        if not s: # s==[]
             return Response({"success": False,
-                             "content": "task " + kw['service_name'] + "/" + kw['task_name'] + " is not available"})
-        if s[0]['type']=='sync':
-            return Response({"success": False, "content": "task "+kw['service_name']+"/"+kw['task_name']+ " is synchronous!"})
+                             "content": "task " + name + "/" + tname + " is not available"})
+        if s[0]['type'] == 'sync':
+            return Response({"success": False, "content": "task " + name + "/" + tname + " is synchronous!"})
 
         #t = add.delay(4, 4)
 
+        #checking the required parameters are available in the GET or POST request
+        #parameters is a dictionary "parameter name": "value"
+        #missing is a list of dictionaries, each dictionary is "parameter name": "parameter should be a number"  or
+        #"parameter name": "parameter is missing"
+        parameters, missing = check_params(s, request,verb)
 
-        ##todo: check all parameters are given correctly (compare with json file)
+        if missing:  #if some parameters are missing or the type is wrong (number instead of string)
+            return Response({"success": False, "content": missing})
 
         ##Import the module with the task and use celery to start an asynchronous process, return the process id to the caller
         mod= importlib.import_module(s[0]['location'])  #this imports portal.tasks
         #t = mod.add.delay(4, 4)
-        asyncresult= eval("mod."+s[0]['name']+".delay()")
-        return Response({"success": True, "content": "starting asynchronous task "+kw['service_name']+"/"+kw['task_name'],"id": asyncresult.id})
+
+        if parameters:
+            # final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters).wait(timeout=None, propagate=True, interval=0.5)")
+            # asyncresult =eval("mod."+s[0]['name']+".apply_async( kwargs=parameters)")
+            asyncresult = eval("mod." + s[0]['name'] + ".apply_async(kwargs=parameters)")
+        else:  # no parameters are necessary
+            asyncresult = eval("mod." + s[0]['name'] + ".apply_async()")
+            #asyncresult= eval("mod."+s[0]['name']+".delay()")
+
+        return Response({"success": True, "content": "starting asynchronous task " + name + "/" + tname,"id": asyncresult.id})
+
 
 
 class JobDetail(APIView):

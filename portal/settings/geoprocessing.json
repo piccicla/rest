@@ -77,11 +77,13 @@
       "info":"task for testing asynchronous processing",
       "location":"portal.tasks",
       "type":"async",
-      "input":[],
+      "input":[
+        {"name":"datasetid", "info":"the dataset id","type":"number", "required":true, "default":"6","choicelist":[]},
+        {"name":"layer", "info":"a layer","type":"string", "required":true, "default":"","choicelist":[]}
+      ],
       "output":[]
       }
     ]
-
   }
 
 ]
