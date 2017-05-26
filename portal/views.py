@@ -21,7 +21,7 @@ PROCESSING_SETTINGS_URL = settings.PROCESSING_SETTINGS_URL
 ##########################################################
 
 
-from django.shortcuts import render
+#from django.shortcuts import render
 
 import json
 import os
@@ -36,14 +36,15 @@ from rest_framework.reverse import reverse
 from celery.result import AsyncResult
 from rest.celery import app
 
-import portal.processing as pr
+#import portal.processing as pr
 
 
 class APIRootView(APIView):
     """
     This is the root of the REST API; this will show an example of REST endpoints
-    accessed by http://localhost:8100/processing/
     """
+    #accessed by http://localhost:8100/processing/
+
     def get(self, request):
         data = {
             'geoservices-list-url': reverse('geoservices-list',   request=request),
@@ -56,13 +57,12 @@ class APIRootView(APIView):
         }
         return Response(data)
 
-
-
 class GeoservicesList(APIView):
     """
     Geoprocessing services: a list of available services
-    e.g. http://localhost:8100/processing/services/
     """
+    # e.g. http://localhost:8100/processing/services/
+
     def get(self, request, *args, **kw):
 
         f= open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
@@ -74,8 +74,9 @@ class GeoservicesList(APIView):
 class GeoservicesDetail(APIView):
     """
     Geoprocessing services: the details of a service
-    e.g http://localhost:8100/processing/colorgrade/
     """
+    #e.g http://localhost:8100/processing/colorgrade/
+
     def get(self, request, *args, **kw):
 
         f= open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
@@ -93,9 +94,10 @@ class GeoservicesDetail(APIView):
 
 class TaskDetail(APIView):
     """
-    Geoprocessing task: the details of a task
-        e.g http://localhost:8100/processing/colorgrade/berrycolor_workflow/
+    Geoprocessing task: the details of a task 
     """
+    #e.g http://localhost:8100/processing/synch_asynch_tests/synch/
+
     def get(self, request, *args, **kw):
 
         f= open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
@@ -172,7 +174,6 @@ class TaskSync(APIView):
 
 ##################################
 
-#TODO: adapt for post request
 def check_params(s, request, verb="get"):
 
     """
@@ -239,8 +240,9 @@ def check_params(s, request, verb="get"):
 class TaskSync(APIView):    ##########testing rest parameters
     """
     Start a synchronous task
-    e.g.  http://localhost:8100/processing/synch_asynch_tests/synch/executesync/
     """
+    #e.g.  http://localhost:8100/processing/synch_asynch_tests/synch/executesync/
+
     def get(self, request, *args, **kw):
 
         return self.get_post(request, "get", *args, **kw)
@@ -323,9 +325,10 @@ class TaskSync(APIView):    ##########testing rest parameters
 
 class TaskAsync(APIView):
     """
-    Start an asynchronous task
-    e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/executeasync/
+    Start an asynchronous task  
     """
+    #e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/executeasync/
+
     def get(self, request, *args, **kw):
         return self.get_post(request, "get", *args, **kw)
 
@@ -393,6 +396,10 @@ class JobDetail(APIView):
     """
 
     """
+    
+    e.g. http://localhost:8100/processing/synch_asynch_tests/asynch/jobs/00000000-0000-0000-0000-000000000000/
+    
+    
     Possible celery states 
     PENDING
     Task is waiting for execution or unknown. Any task id that’s not known is implied to be in the pending state.
@@ -420,8 +427,11 @@ class JobDetail(APIView):
 
     def get(self, request, *args, **kw):
 
+        # these are not really necessary, the important is the id
         name = kw['service_name']
         tname = kw['task_name']
+
+
         id= kw['job_id']
 
         #f= open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
@@ -452,22 +462,48 @@ class JobDetail(APIView):
             return Response(s)
 
 
-#TODO check the terminate parameter
 class JobCancel(APIView):
-    """
-    Geoprocessing task: cancel
-    When a worker receives a revoke request it will skip executing the task, but it won’t terminate an already executing task unless the terminate option is set.
+    """Geoprocessing task: cancel
+    When a worker receives a revoke request it will skip executing the task, but it won’t terminate an already executing task unless the terminate get/post parameter is set to true
     NOTE:The terminate option is a last resort for administrators when a task is stuck. It’s not for terminating the task, it’s for terminating the process that’s
-     executing the task, and that process may have already started processing another task at the point when the signal is sent, so for this reason you must never call this programmatically.
+     executing the task, and that process may have already started processing another task at the point when the signal is sent, so for this reason you must never call this programmatically.  
+    
+    pass terminate parameter value equal true
     """
+
+    """
+    more info:
+    http://docs.celeryproject.org/en/latest/reference/celery.app.control.html#celery.app.control.Control.revoke
+      
+    e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/jobs/00000000-0000-0000-0000-000000000000/cancel/
+    """
+
     def get(self, request, *args, **kw):
+        return self.get_post(request, "get", *args, **kw)
+
+    def post(self, request, *args, **kw):
+        return self.get_post(request, "post", *args, **kw)
+
+    def get_post(self, request, verb, *args, **kw ):
+
         name = kw['service_name']
         tname = kw['task_name']
         id= kw['job_id']
 
-        app.control.revoke(id, terminate=True)
+        # check the parameter name for get and post request
+        if verb == "get":
+            param = request.query_params.get("terminate", None)
+        else:
+            param = request.data.get("terminate", None)
 
-        s = {"jobId": id, "jobStatus": "revoked", "content":[]}
+        if param=="true":
+            app.control.revoke(id, terminate=True)
+            s = {"jobId": id, "jobStatus": "revoked", "content": ["terminate parameter was passed"]}
+        else:
+            app.control.revoke(id)
+            s = {"jobId": id, "jobStatus": "revoked", "content": ["no terminate"]}
+
+        #s = {"jobId": id, "jobStatus": "revoked", "content":[]}
         return Response(s)
 
 ######################TESTS################
