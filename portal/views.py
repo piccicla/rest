@@ -33,10 +33,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+
+from rest_framework.permissions import IsAuthenticated
+
 from celery.result import AsyncResult
 from rest.celery import app
 
 #import portal.processing as pr
+
+
 
 
 class APIRootView(APIView):
@@ -243,6 +248,9 @@ class TaskSync(APIView):    ##########testing rest parameters
     """
     #e.g.  http://localhost:8100/processing/synch_asynch_tests/synch/executesync/
 
+    permission_classes = (IsAuthenticated,) #only authenticad users can see this
+
+
     def get(self, request, *args, **kw):
 
         return self.get_post(request, "get", *args, **kw)
@@ -328,6 +336,8 @@ class TaskAsync(APIView):
     Start an asynchronous task  
     """
     #e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/executeasync/
+
+    permission_classes = (IsAuthenticated,) #only authenticad users can see this
 
     def get(self, request, *args, **kw):
         return self.get_post(request, "get", *args, **kw)
@@ -424,6 +434,8 @@ class JobDetail(APIView):
     propagates:	Yes
     """
 
+    permission_classes = (IsAuthenticated,) #only authenticad users can see this
+
 
     def get(self, request, *args, **kw):
 
@@ -477,6 +489,8 @@ class JobCancel(APIView):
       
     e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/jobs/00000000-0000-0000-0000-000000000000/cancel/
     """
+
+    permission_classes = (IsAuthenticated,) #only authenticad users can see this
 
     def get(self, request, *args, **kw):
         return self.get_post(request, "get", *args, **kw)
@@ -538,9 +552,13 @@ class CustomGet(APIView):
   """
   A custom endpoint for GET request.
   """
+  permission_classes = (IsAuthenticated,)  # only authenticad users can see this
+
   def get(self, request, format=None):
     """
     Return a hardcoded response.
     """
-    return Response({"success": True, "content": "Hello World!"})
+    return Response({"success": True, "content": str(request.user)})
+
+
 #####################################################

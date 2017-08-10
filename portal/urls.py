@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from portal import views
 
+from portal import views_token
+
 urlpatterns = [
 
     ####tests#####
@@ -36,5 +38,13 @@ urlpatterns = [
     ####cancel asynchronous geoprocessing job
     #url(r'^processing/(?P<service_name>\w+)/(?P<task_name>\w+)/jobs/(?P<job_id>\w+)/cancel/$', views.JobCancel.as_view(), name='job-cancel') #this will cancel an asynchronous job
 
-    url(r'^processing/(?P<service_name>\w+)/(?P<task_name>\w+)/jobs/(?P<job_id>[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12})/cancel/$', views.JobCancel.as_view(), name='job-cancel')
+    url(r'^processing/(?P<service_name>\w+)/(?P<task_name>\w+)/jobs/(?P<job_id>[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12})/cancel/$', views.JobCancel.as_view(), name='job-cancel'),
+
+
+    #login to get token, logout to delete token
+    url(r'^login', views_token.login, name="login"),
+    url(r'^logout', views_token.logout, name="logout"),
+
+    #url(r'^trial', views.CustomGet.as_view(), name="trial")
+
 ]
