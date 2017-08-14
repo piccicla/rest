@@ -2,6 +2,7 @@ from django.conf.urls import url
 from portal import views
 
 from portal import views_token
+from portal import views_upload
 
 urlpatterns = [
 
@@ -23,7 +24,7 @@ urlpatterns = [
 
     #####execute synchronous geoprocessing task
     url(r'^processing/(?P<service_name>\w+)/(?P<task_name>\w+)/executesync/$', views.TaskSync.as_view(), name='execute-sync'),
-    # this will return the details of a task
+
 
     #####execute asynchronous geoprocessing task
     url(r'^processing/(?P<service_name>\w+)/(?P<task_name>\w+)/executeasync/$', views.TaskAsync.as_view(),name='execute-async'),
@@ -40,11 +41,13 @@ urlpatterns = [
 
     url(r'^processing/(?P<service_name>\w+)/(?P<task_name>\w+)/jobs/(?P<job_id>[a-f0-9]{8}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{4}-?[a-f0-9]{12})/cancel/$', views.JobCancel.as_view(), name='job-cancel'),
 
-
     #login to get token, logout to delete token
     url(r'^login', views_token.login, name="login"),
     url(r'^logout', views_token.logout, name="logout"),
 
-    #url(r'^trial', views.CustomGet.as_view(), name="trial")
+    #upload files
+    url(r'^upload', views_upload.FileUploadView.as_view(), name="upload"),
+    #get fields of uploaded file, user should pass the folder id and the filetype
+    url(r'^getfields', views_upload.FileGetFieldsView.as_view(), name="getfields"),
 
 ]

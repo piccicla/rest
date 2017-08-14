@@ -52,13 +52,19 @@ class APIRootView(APIView):
 
     def get(self, request):
         data = {
-            'geoservices-list-url': reverse('geoservices-list',   request=request),
-            'geoservice-detail-url': reverse('geoservice-detail',args=['synch_asynch_tests'], request=request),
-            'task-detail-url': reverse('task-detail',args=['synch_asynch_tests','synch'],request=request),
-            'execute-sync-url': reverse('execute-sync',args=['synch_asynch_tests','synch'],request=request),
-            'execute-async-url': reverse('execute-async',args=['synch_asynch_tests','asynch'],request=request),
-            'job-detail-url': reverse('job-detail',args=['synch_asynch_tests','asynch','00000000-0000-0000-0000-000000000000'],request=request),
-            'job-cancel-url': reverse('job-cancel',args=['synch_asynch_tests','asynch','00000000-0000-0000-0000-000000000000'],request=request)
+
+            'login-url':reverse("login",request=request),
+            'logout-url': reverse("logout", request=request),
+            'upload-url': reverse("upload", request=request),
+            'getfields-url': reverse("getfields", request=request),
+
+            'geoservices-list-url': reverse("geoservices-list",   request=request),
+            'geoservice-detail-url': reverse("geoservice-detail",args=['synch_asynch_tests'], request=request),
+            'task-detail-url': reverse("task-detail",args=['synch_asynch_tests','synch'],request=request),
+            'execute-sync-url': reverse("execute-sync",args=['synch_asynch_tests','synch'],request=request),
+            'execute-async-url': reverse("execute-async",args=['synch_asynch_tests','asynch'],request=request),
+            'job-detail-url': reverse("job-detail",args=['synch_asynch_tests','asynch','00000000-0000-0000-0000-000000000000'],request=request),
+            'job-cancel-url': reverse("job-cancel",args=['synch_asynch_tests','asynch','00000000-0000-0000-0000-000000000000'],request=request)
         }
         return Response(data)
 

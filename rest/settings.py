@@ -37,6 +37,15 @@ CELERY_RESULT_BACKEND ="db+postgresql://claudio:claudio@localhost/grapes"
 #PROCESSING_SETTINGS_URL = os.path.normpath(os.path.join(os.path.dirname(__file__), '../', "portal/settings/geoprocessing.json"))
 PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
 
+#root folder containing uploaded data
+UPLOAD_ROOT = "/vagrant/code/pysdss/data/input/uploads/"
+#possible upload formats
+UPLOAD_FORMATS = ["csv","zip"]
+#mandatory and optional shapefile fields
+SHAPE_MANDATORY_FILES = ["shp", "shx", "dbf"]
+SHAPE_OPTIONAL_FILES = ["xml", "prj", "sbn", "sbx", "cpg"]
+
+
 # Application definition
 
 INSTALLED_APPS = [
