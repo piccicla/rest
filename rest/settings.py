@@ -44,10 +44,23 @@ UPLOAD_FORMATS = ["csv","zip"]
 #mandatory and optional shapefile fields
 SHAPE_MANDATORY_FILES = ["shp", "shx", "dbf"]
 SHAPE_OPTIONAL_FILES = ["xml", "prj", "sbn", "sbx", "cpg"]
+#mandatory fields for metadata tables (Yield,Canopy, Soil, Sensor)
+METADATA_MANDATORY_FIELDS = ["metatable","toolid","datetime", "roworientation"]
+METADATA_ALL_FIELDS = ["metatable","toolid","datetime", "roworientation", "swathWidth", "ofset", "rowSpacing", "comments"]
+METADATA_FIELDS_TYPES = {"datetime":"string", "roworientation":"string", "swathWidth":"number", "ofset":"number", "rowSpacing":"number", "comments":"string"}
+#link between metadata tables names and  dataset table names
+METADATA_DATA_TABLES = {"yield": "yielddatum", "soil": "soildatum", "canopy": "canodatum", "sensor": "sensodatum", "sensodatum":["berrycount", "berrysize", "colorgrade"]}
+#id fields for metadata tables
+METADATA_IDS = {"yield": "id_yield","soil": "id_soil","canopy": "id_canopy","sensor": "id_sensor"}
+#idyype fields for metadata tables
+METADATA_ID_TYPES = {"yield": "id_ytype","soil": "id_stype","canopy": "id_ctype","sensor": "id_stype"}
+
+
+
+
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

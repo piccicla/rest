@@ -57,6 +57,7 @@ class APIRootView(APIView):
             'logout-url': reverse("logout", request=request),
             'upload-url': reverse("upload", request=request),
             'getfields-url': reverse("getfields", request=request),
+            'upload_database-url': reverse("upload_database", request=request),
 
             'geoservices-list-url': reverse("geoservices-list",   request=request),
             'geoservice-detail-url': reverse("geoservice-detail",args=['synch_asynch_tests'], request=request),
