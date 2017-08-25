@@ -81,11 +81,15 @@ class FileUploadView(APIView):
         try:
 
             up_file = request.FILES['file']
-            if not up_file: raise Exception("file is missing, upload again")
+            if not up_file:
+                #raise Exception("file is missing, upload again")
+                return Response({"success": False, "content": "file is missing, upload again"})
 
             #check mandatory metadata fields
             for i in settings.METADATA_MANDATORY_FIELDS:
-                if not request.data.get(i): raise Exception("mandatory POST parameter " + i + " must be available")
+                if not request.data.get(i):
+                    #raise Exception("mandatory POST parameter " + i + " must be available")
+                    return Response({"success": False, "content": "mandatory POST parameter " + i + " must be available"})
 
             # create unique identifier to name the folder
             idf = utils.create_uniqueid()
@@ -118,7 +122,7 @@ class FileUploadView(APIView):
                             out = open(settings.UPLOAD_ROOT + idf + "/" + fileName, "wb")
                             out.write(zipShape.read(fileName))
                             out.close()
-                except Exception as e:
+                except Exception as e: #for any other unexpected error
                     return Response({"success": False, "content": "problems extracting the zip file, try to upload again"})
                 finally:
                     if zipShape: zipShape.close()
@@ -142,7 +146,7 @@ class FileUploadView(APIView):
             #return the folderID, the metadata newrow ID, and the file extension
             return Response({"success": True, "content": [idf,iddataset, up_file.name.split('.')[-1]]})
         except Exception as e:
-            return Response({"success": False, "content": str(e)})
+            return Response({"success": False, "content": str(e)}) #errors coming from query.upload_metadata
 
 
 class DataUploadView(APIView):
@@ -178,10 +182,13 @@ class DataUploadView(APIView):
             folderid = request.data.get('folderid')
             filename = request.data.get('filename')
 
-            if not all([metatable, idd, lat, lon, value, folderid, filename]): raise Exception("some POST parameters are missing")
+            if not all([metatable, idd, lat, lon, value, folderid, filename]):
+                #raise Exception("some POST parameters are missing")
+                return Response({"success": False,"content": "some POST parameters are missing"})
 
-            if filename.lower().split('.')[-1] not in settings.UPLOAD_FORMATS:raise Exception("format should be one of " + str(settings.UPLOAD_FORMATS))
-
+            if filename.lower().split('.')[-1] not in settings.UPLOAD_FORMATS:
+                #raise Exception("format should be one of " + str(settings.UPLOAD_FORMATS))
+                return Response({"success": False, "content": "format should be one of " + str(settings.UPLOAD_FORMATS)})
             #open the file
 
 
@@ -204,7 +211,7 @@ class DataUploadView(APIView):
 class FileGetFieldsView(APIView):
     """
     Get the fields for the uploaded file
-    require folderid and filetype(csv or shapefile)
+    require folderid and filetype csv or zip(shapefile)
     """
 
     '''
@@ -234,7 +241,7 @@ class FileGetFieldsView(APIView):
             ftype = request.data.get('filetype')
             if (idf and ftype):
                 if (not os.path.exists(settings.UPLOAD_ROOT + idf) or  ftype not in settings.UPLOAD_FORMATS):
-                    raise Exception("check id and file type")
+                    raise Exception("request should contain a correct 'folderid' and 'filetype'")
 
                 if ftype == "csv":
                     fields=["not_available"]
@@ -269,7 +276,7 @@ class FileGetFieldsView(APIView):
                     return Response({"success": True, "content": fields+[field[0].strip().lower() for field in sf.fields]})
 
             else:
-                return Response({"success": False, "content": "request should contain 'id' and 'filetype'"})
+                return Response({"success": False, "content": "request should contain a correct 'folderid' and 'filetype'"})
 
         except Exception as e:
             return Response({"success": False, "content": str(e)})
