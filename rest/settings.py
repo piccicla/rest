@@ -32,10 +32,20 @@ ALLOWED_HOSTS = []
 CELERY_BROKER_URL = "amqp://localhost//"
 #CELERY_RESULT_BACKEND = 'file:///vagrant/code/pysdss/pysdss/geoprocessing/results'
 CELERY_RESULT_BACKEND ="db+postgresql://claudio:claudio@localhost/grapes"
+CELERY_ACCEPT_CONTENT = ['json', 'pickle']  # added this to allow passing files with pickle serialization
+
+
+
 
 
 #PROCESSING_SETTINGS_URL = os.path.normpath(os.path.join(os.path.dirname(__file__), '../', "portal/settings/geoprocessing.json"))
 PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
+
+
+# a dictionary of tuples { <methodname>: {<service_name>,<task_name>}} for those tasks that need further processing
+# before execution (e.g. checking un uploaded file extension)
+# the method is called for that specific couple of service/task
+CHECK_SERVICES = {'check_upload': {'database','upload'}}
 
 #root folder containing uploaded data
 UPLOAD_ROOT = "/vagrant/code/pysdss/data/input/uploads/"
@@ -55,6 +65,10 @@ METADATA_IDS = {"yield": "id_yield","soil": "id_soil","canopy": "id_canopy","sen
 #idyype fields for metadata tables
 METADATA_ID_TYPES = {"yield": "id_ytype","soil": "id_stype","canopy": "id_ctype","sensor": "id_stype"}
 
+#id fields for data tables
+DATA_IDS = {"yield": "id_ydata","soil": "id_sdata","canopy": "id_cdata","sensor": "id_sdata"}
+# id fields for sensor subtables
+SENSOR_IDS = {"colorgrade": "id_cgrade","berrysize": "id_size","berrycount": "id_count"}
 
 
 
@@ -74,6 +88,10 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+
+    ####todo disable this in production, the server should be responsible for the zipped content?
+    'django.middleware.gzip.GZipMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -160,3 +178,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     )
 }
+
+

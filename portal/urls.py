@@ -45,10 +45,14 @@ urlpatterns = [
     url(r'^login', views_token.login, name="login"),
     url(r'^logout', views_token.logout, name="logout"),
 
+
+    #todo set the synch/asynch services
     #upload files
-    url(r'^processing/upload', views_upload.FileUploadView.as_view(), name="upload"),
+    url(r'^upload', views_upload.FileUploadView.as_view(), name="upload"),
     #get fields of uploaded file, user should pass the folder id and the filetype
-    url(r'^processing/getfields', views_upload.FileGetFieldsView.as_view(), name="getfields"),
-    url(r'^processing/todatabase', views_upload.DataUploadView.as_view(), name="upload_database"),
+    url(r'^getfields', views_upload.FileGetFieldsView.as_view(), name="getfields"),
+    url(r'^todatabase', views_upload.DataUploadView.as_view(), name="upload_database"),
+
+    url(r'^getjson', views_upload.DataGetGeoJSONView.as_view(), name="get_geojson")
 
 ]

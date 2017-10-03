@@ -35,14 +35,21 @@ from rest_framework.reverse import reverse
 
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
+
+from django.conf import settings
 
 from celery.result import AsyncResult
 from rest.celery import app
 
+import portal.checking
+
 #import portal.processing as pr
 
-
-
+# this is used to check if there is an uploaded file in memory, if yes we will save to a temporary location and give
+# the location to celery, otherwise apply_async will raise  a "is not JSON serializable" exception
+# see also https://www.reddit.com/r/django/comments/53h6df/path_for_an_inmemoryuploadedfile_not_sure_how_to/
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 class APIRootView(APIView):
     """
@@ -80,7 +87,7 @@ class GeoservicesList(APIView):
         f= open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
         parsed_json = json.load(f)
         s = sorted([s['name'] for s in parsed_json['service']])
-        return Response({"success": True, "content": s} )
+        return Response({"success": True, "content": s})
 
 
 class GeoservicesDetail(APIView):
@@ -224,7 +231,8 @@ def check_params(s, request, verb="get"):
             # check the type (string or number)
             if input["type"] == "number":
                 try:
-                    parameters[input["name"]] = float(param)
+                    float(param) #this will raise error if not a number
+                    parameters[input["name"]] = param
                 except:
                     missing.append({input["name"]: "parameter should be a number"})
             else:
@@ -235,17 +243,21 @@ def check_params(s, request, verb="get"):
             if input['default']:  # if the parameter is not required there should be a default value
                 if input["type"] == "number":
                     try:
+                        float(input['default']) #this will raise error if not a number
                         parameters[input["name"]] = float(input['default'])
                     except:
                         missing.append({input["name"]: "parameter should be a number"})
                 #parameters[input["name"]] = input['default']
-            else:
-                missing.append({input["name"]: "parameter default value is missing from the config file"})
+            # todo:check what to do when the default is empty
+            #else:
+                #missing.append({input["name"]: "parameter default value is missing from the config file"})
+
         # param is not there and it is required
         else:
             missing.append({input["name"]: "parameter is missing"})
 
     return parameters, missing
+
 
 
 
@@ -255,17 +267,17 @@ class TaskSync(APIView):    ##########testing rest parameters
     """
     #e.g.  http://localhost:8100/processing/synch_asynch_tests/synch/executesync/
 
-    permission_classes = (IsAuthenticated,) #only authenticad users can see this
+    ####permission_classes = (IsAuthenticated,) #only authenticad users can see this
+    parser_classes = (MultiPartParser, FormParser,)
+
 
 
     def get(self, request, *args, **kw):
-
         return self.get_post(request, "get", *args, **kw)
 
     def post(self, request, *args, **kw):
         #return Response({"success": True, "content": "Hello World!"})
         #return Response(request.data)
-
         return self.get_post(request, "post", *args, **kw)
 
 
@@ -282,7 +294,7 @@ class TaskSync(APIView):    ##########testing rest parameters
         name = kw['service_name']
         tname = kw['task_name']
 
-        f= open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
+        f = open(os.path.dirname(__file__)+PROCESSING_SETTINGS_URL)
         parsed_json = json.load(f)
 
         # check the service exists
@@ -305,9 +317,19 @@ class TaskSync(APIView):    ##########testing rest parameters
         #missing is a list of dictionaries, each dictionary is "parameter name": "parameter should be a number"  or
         #"parameter name": "parameter is missing"
         parameters, missing = check_params(s, request,verb)
-
         if missing:  #if some parameters are missing or the type is wrong (number instead of string)
             return Response({"success": False, "content": missing})
+
+        # check for additional processing for a specific method
+        # settings.CHECK_SERVICES contains the special methods
+        for key, value in settings.CHECK_SERVICES.items():
+            if {name,tname} == value:
+                checkresult = portal.checking.check_services(request, key)
+                if not checkresult[0]:
+                    return Response({"success": False, "content": checkresult[1]})
+                else:
+                    parameters = {**parameters, **checkresult[1]}  #python3.5 to merge dictionaries
+
 
         #all the necessary parameters are available, therefore we can
         #import the module with the task and use celery to start a synchronous process, and wait for the response
@@ -315,18 +337,29 @@ class TaskSync(APIView):    ##########testing rest parameters
         #t = mod.add.delay(4, 4)
         #use wait to wit for the result
 
+
         try:
 
             if parameters:
+
+                # check there is no uploaded file
+                #for a in parameters:
+                 #   if (type(parameters[a])== InMemoryUploadedFile): print(a)
+
                 #final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters).wait(timeout=None, propagate=True, interval=0.5)")
                 #asyncresult =eval("mod."+s[0]['name']+".apply_async( kwargs=parameters)")
-                final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters).wait(timeout=None, propagate=True, interval=0.5)")
+                # added serializer pickle to allow passing files uploaded from the client, the default json does not work
+                final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters, serializer='pickle').wait(timeout=None, propagate=True, interval=0.5)")
             else: #no parameters are necessary
                 final_res = eval("mod."+s[0]['name']+".apply_async().wait(timeout=None, propagate=True, interval=0.5)")
 
-            return Response({"success": True, "content": final_res})
+            if final_res['success']:
+                return Response({"success": True, "content": final_res['content']})
+            else:
+                return Response({"success": False, "content": final_res['content']})
         except Exception as e:
-            return Response({"success": False, "content": eval(str(e))})
+            #return Response({"success": False, "content": eval(str(e))})
+            return Response({"success": False, "content": str(e)})
 
         '''if final_res[0] == "error":
             return Response(
@@ -344,7 +377,9 @@ class TaskAsync(APIView):
     """
     #e.g.  http://localhost:8100/processing/synch_asynch_tests/asynch/executeasync/
 
-    permission_classes = (IsAuthenticated,) #only authenticad users can see this
+    #permission_classes = (IsAuthenticated,) #only authenticad users can see this
+    parser_classes = (MultiPartParser, FormParser,)
+
 
     def get(self, request, *args, **kw):
         return self.get_post(request, "get", *args, **kw)
@@ -391,6 +426,8 @@ class TaskAsync(APIView):
         if missing:  #if some parameters are missing or the type is wrong (number instead of string)
             return Response({"success": False, "content": missing})
 
+
+
         ##Import the module with the task and use celery to start an asynchronous process, return the process id to the caller
         mod= importlib.import_module(s[0]['location'])  #this imports portal.tasks
         #t = mod.add.delay(4, 4)
@@ -398,7 +435,7 @@ class TaskAsync(APIView):
         if parameters:
             # final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters).wait(timeout=None, propagate=True, interval=0.5)")
             # asyncresult =eval("mod."+s[0]['name']+".apply_async( kwargs=parameters)")
-            asyncresult = eval("mod." + s[0]['name'] + ".apply_async(kwargs=parameters)")
+            asyncresult = eval("mod." + s[0]['name'] + ".apply_async(kwargs=parameters, serializer='pickle')") #pickle added to allow passing uploading files from the client
         else:  # no parameters are necessary
             asyncresult = eval("mod." + s[0]['name'] + ".apply_async()")
             #asyncresult= eval("mod."+s[0]['name']+".delay()")

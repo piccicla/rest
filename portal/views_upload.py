@@ -53,15 +53,15 @@ class FileUploadView(APIView):
     """
 
     ## tests
-    # 1OK
+    # 1 parameters missing
     # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/2016_06_17.csv' http://localhost:8000/upload
     # 2wrong format
-    # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/2016_06_17.txt' http://localhost:8000/upload
+    # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/2016_06_17.txt' -F 'metatable=sensor' -F 'toolid=1' -F 'datetime=2017-08-15%2014:19:25.63' -F 'roworientation=NE' http://localhost:8000/upload
     # 3OK
-    # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/shape.zip' http://localhost:8000/upload
+    # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/shape.zip'  -F 'metatable=sensor' -F 'toolid=1' -F 'datetime=2017-08-15%2014:19:25.63' -F 'roworientation=NE' http://localhost:8000/upload
     # 4 wrong zip content
-    # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/badshape.zip' http://localhost:8000/upload
-
+    # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/badshape.zip' -F 'metatable=sensor' -F 'toolid=1' -F 'datetime=2017-08-15%2014:19:25.63' -F 'roworientation=NE' http://localhost:8000/upload
+    # 5 OK
     # curl -X POST -H 'Content-Type:multipart/form-data' -F 'file=@//vagrant/code/pysdss/data/input/2016_06_17.csv' -F 'metatable=sensor' -F 'toolid=1' -F 'datetime=2017-08-15%2014:19:25.63' -F 'roworientation=NE' http://localhost:8000/upload
 
 
@@ -85,7 +85,7 @@ class FileUploadView(APIView):
                 #raise Exception("file is missing, upload again")
                 return Response({"success": False, "content": "file is missing, upload again"})
 
-            #check mandatory metadata fields
+            #check mandatory metadata fields   #todo: should this be done with the geoprocessing.json file?
             for i in settings.METADATA_MANDATORY_FIELDS:
                 if not request.data.get(i):
                     #raise Exception("mandatory POST parameter " + i + " must be available")
@@ -135,10 +135,11 @@ class FileUploadView(APIView):
             # ...
 
             #upload the metadata to the database table and get back the id for the new row
+
+            # todo: this is to be converted to a celery process, but it is necessary to delete the inmemory file from the request data to avoid serialization errors
+
             iddataset = query.upload_metadata(request.data, settings.METADATA_ID_TYPES, settings.METADATA_FIELDS_TYPES,
                                               settings.METADATA_IDS)
-
-
 
 
             #return Response(up_file.name, status.HTTP_201_CREATED)
@@ -158,7 +159,7 @@ class DataUploadView(APIView):
 
     #########tests
     #csv with 'row'
-    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' -F 'row=sensor_addr' http://localhost:8000/todatabase
+    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' -F 'row=sensor_addr' http://localhost:8000/processing/todatabase
     #csv without 'row'
     #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' http://localhost:8000/todatabase
     #shapefile with 'row'
@@ -283,3 +284,29 @@ class FileGetFieldsView(APIView):
 
 
 
+class DataGetGeoJSONView(APIView):
+    """
+    Get geojson for a dataset
+
+    """
+    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy'  -F 'iddataset=1'  http://localhost:8000/processing/getjson
+
+    parser_classes = (MultiPartParser,FormParser, )
+    #permission_classes = (IsAuthenticated,)  # only authenticad users can upload files
+
+
+    def post(self, request, format=None):
+        try:
+
+
+            #check parameters
+            metatable = request.data.get('metatable')
+            idd = request.data.get('iddataset')
+
+            #todo check parameters
+            result = query.get_geojson(request.data,settings.METADATA_DATA_TABLES, settings.METADATA_IDS, settings.DATA_IDS, limit=100000)
+
+            return Response({"success": True, "content": result})
+
+        except Exception as e:
+            return Response({"success": False, "content": str(e)})

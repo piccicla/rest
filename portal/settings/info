@@ -4,15 +4,14 @@
         "info":"this service provide tasks for colorgrade analytics",
         "task":[
           {
-            "name":"",
-            "info":"",
-            "location":"",
-            "type":"sync"|"async"|"both",
-            "input":[],
-            "output":[]
-          }
-        ]
-      }
+          “name”: ”<task name>“,
+          “info”: ”<info about the task>“,
+          “location”: ”<python module location>“,
+          “type”: ”sync”| ”async”| ”both”,
+          “input”: [{ “name”: ”<input name>“, “type”: ”string”| ”number”| ”list”| ”json”, “info”: ”<info about this input>“,
+                        “required”: true| false, “default”:”<default value>“ ,”choicelist”: [ “<choice1>”, “<choice2>”, …]}],
+          “output”: [{“name”: ”<output name>“, “type”:”string”| ”number”| ”url”| ”list”| ”json” }]
+        }
   ]
  }
 
@@ -22,7 +21,7 @@ A service has a name and info and contains one or more tasks
 Each task has name, info, location (which is the python module ), the type (sync, async, both) and a list of inputs and
 outputs
 
-each input has a name, info, required, default, choicelist when required is false a default value will be used
+each input has a name, type, info, required, default, choicelist. When required is false a default value will be used
 each output has a name and type
 
 to start celery

@@ -35,6 +35,28 @@
         {"name":"fields", "type":"param","info":"mapping between the data fields and the required fields","required":true}
       ],
         "output":[]
+      },
+      {
+        "name":"upload",
+      "info":"Upload data file to a server folder and add a row to the metadata table. Data files are for yield, soil",
+      "location":"portal.tasks",
+      "type":"both",
+      "input":[
+        {"name":"file", "type":"file","info":"a .csv or a .zip file. Zip file should contain the three mandatory files defining a shapefile: 'shp', 'shx', 'dbf'","required":true},
+        {"name":"metatable", "type":"string","info":"metadata table name","required":true, "choicelist": [ "yield","soil","canopy","sensor"]},
+        {"name":"toolid", "type":"number","info":"the ID for the tool","required":true},
+        {"name":"datetime", "type":"string","info":"date and time in timestamp format e.g. (2017-08-15 14:19:25.63)","required":true},
+        {"name":"roworientation", "type":"string","info":"Main orientation of the vineyard rows","required":true, "choicelist": [ "ns", "we"]},
+        {"name":"swathwidth", "type":"number","info":"","required":false, "default":""},
+        {"name":"ofset", "type":"number","info":"","required":false, "default":""},
+        {"name":"rowspacing", "type":"number","info":"","required":false, "default":""},
+        {"name":"comments", "type":"text","info":"","required":false, "default":""}
+      ],
+        "output":[
+          {"name":"folderid", "type":"string"},
+          {"name":"datasetid", "type":"number"},
+          {"name":"fileformat", "type":"string"}
+        ]
       }
     ]
   },
