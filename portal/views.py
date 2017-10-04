@@ -322,6 +322,7 @@ class TaskSync(APIView):    ##########testing rest parameters
 
         # check for additional processing for a specific method
         # settings.CHECK_SERVICES contains the special methods
+        # the additional parameters will be merged with the current parameters
         for key, value in settings.CHECK_SERVICES.items():
             if {name,tname} == value:
                 checkresult = portal.checking.check_services(request, key)
@@ -336,7 +337,6 @@ class TaskSync(APIView):    ##########testing rest parameters
         mod= importlib.import_module(s[0]['location'])  #this imports portal.tasks
         #t = mod.add.delay(4, 4)
         #use wait to wit for the result
-
 
         try:
 

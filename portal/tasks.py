@@ -6,14 +6,14 @@
 #
 # Author:      claudio piccinini
 #
-# Updated:     22/05/2017
+# Updated:     04/10/2017
 #-------------------------------------------------------------------------------
-
 
 from celery import shared_task
 
+from pysdss.geoprocessing import database as db
 
-#########EXAMPLES##########
+'''#########EXAMPLES##########
 from pysdss.geoprocessing import hellocelery as hello
 @shared_task
 def add(x, y):
@@ -32,21 +32,25 @@ def synch(*args, **kw):  # the result must be a  list
 @shared_task
 def asynch(*args, **kw): # the result must be a  list
     return hello.asynchronous_test_1(*args, **kw)
-########################
-
-
-
+########################'''
 
 
 @shared_task
 def upload(*args, **kw):  # the result must be a  list
 
     #print(kw)
-
-    return hello.synchronous_test_upload(*args, **kw)
+    return db.upload_metadata(*args, **kw)
     #print("ciao")
     #return [{"name":"", "type":"string", "kwargs":kw['METADATA_ID_TYPES']}] #test kw are there
 
+@shared_task
+def getfields(*args, **kw):  # the result must be a  list
 
+    #print(kw)
+    return db.get_fields(*args, **kw)
 
+@shared_task
+def todatabase(*args, **kw):  # the result must be a  list
 
+    #print(kw)
+    return db.upload_data(*args, **kw)

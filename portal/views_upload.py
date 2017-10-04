@@ -152,9 +152,11 @@ class FileUploadView(APIView):
 
 class DataUploadView(APIView):
     """
-    Upload the actual data to the database. Post parameters include the "metatable" (yield,soil,canopy,sensor), the "iddataset" of
-    the dataset (from the "metatable"), the mapping for "lat", "lon", "value", the optional mapping for "row" ,  the
+    Upload the actual data to the database. Post parameters include the "metatable" (yield,soil,canopy,sensor), the "datasetid" of
+    the dataset (from the "metatable"), the mapping for "lat", "lon", "value1", the optional mapping for "row"  and the additional value2,3,4,5,6,  the
     "folderID", the "filename" (note, for shpefile the suffix is .zip)
+
+    "not_available" is not allowed for the value1
     """
 
     #########tests
@@ -179,7 +181,7 @@ class DataUploadView(APIView):
             idd = request.data.get('iddataset')
             lat = request.data.get('lat')
             lon = request.data.get('lon')
-            value = request.data.get('value')
+            value = request.data.get('value1')
             folderid = request.data.get('folderid')
             filename = request.data.get('filename')
 
@@ -187,6 +189,8 @@ class DataUploadView(APIView):
                 #raise Exception("some POST parameters are missing")
                 return Response({"success": False,"content": "some POST parameters are missing"})
 
+            if value == "not_available":
+                return Response({"success": False,"content": "value1 cannot be set to 'not_available'"})
             if filename.lower().split('.')[-1] not in settings.UPLOAD_FORMATS:
                 #raise Exception("format should be one of " + str(settings.UPLOAD_FORMATS))
                 return Response({"success": False, "content": "format should be one of " + str(settings.UPLOAD_FORMATS)})
@@ -204,7 +208,7 @@ class DataUploadView(APIView):
             #conn.commit()
 
 
-            return Response({"success": True, "content": "OK"})
+            return Response({"success": True, "content": "data uploaded"})
         except Exception as e:
             return Response({"success": False, "content": str(e)})
 
@@ -239,10 +243,10 @@ class FileGetFieldsView(APIView):
     def post(self, request,  *args, **kw):
         try:
             idf = request.data.get('folderid')
-            ftype = request.data.get('filetype')
+            ftype = request.data.get('fileformat')
             if (idf and ftype):
                 if (not os.path.exists(settings.UPLOAD_ROOT + idf) or  ftype not in settings.UPLOAD_FORMATS):
-                    raise Exception("request should contain a correct 'folderid' and 'filetype'")
+                    raise Exception("request should contain a correct 'folderid' and 'fileformat'")
 
                 if ftype == "csv":
                     fields=["not_available"]

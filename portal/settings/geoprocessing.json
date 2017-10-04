@@ -38,9 +38,9 @@
       },
       {
         "name":"upload",
-      "info":"Upload data file to a server folder and add a row to the metadata table. Data files are for yield, soil",
+      "info":"Upload data file to a server folder and add a row to the metadata table. Data files are for yield, soil, canopy, sensor",
       "location":"portal.tasks",
-      "type":"both",
+      "type":"sync",
       "input":[
         {"name":"file", "type":"file","info":"a .csv or a .zip file. Zip file should contain the three mandatory files defining a shapefile: 'shp', 'shx', 'dbf'","required":true},
         {"name":"metatable", "type":"string","info":"metadata table name","required":true, "choicelist": [ "yield","soil","canopy","sensor"]},
@@ -56,6 +56,43 @@
           {"name":"folderid", "type":"string"},
           {"name":"datasetid", "type":"number"},
           {"name":"fileformat", "type":"string"}
+        ]
+      },
+      {
+        "name":"getfields",
+      "info":" get the fields of the uploaded data",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"folderid", "type":"string","info":"the unique folder id","required":true},
+        {"name":"fileformat", "type":"string","info":"format for the file e.g csv, zip for shapefiles","required":true}
+      ],
+        "output":[
+          {"name":"fieldnames", "type":"list"}
+        ]
+      },
+      {
+        "name":"todatabase",
+      "info":"map file names and upload file to database tables;  fill in the valuemap in the metadata table",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true},
+        {"name":"filename", "type":"string","info":"filename, for shapefiles the suffix is .zip","required":true},
+        {"name":"datasetid", "type":"string","info":"the unique dataset id returned by the upload service","required":true},
+        {"name":"folderid", "type":"string","info":"the unique folder id returned by the upload service","required":true},
+        {"name":"lat", "type":"string","info":"name for the latitude field","required":true},
+        {"name":"lon", "type":"string","info":"name for the longitude field","required":true},
+        {"name":"value1", "type":"string","info":"name for the first value","required":true},
+        {"name":"value2", "type":"string","info":"name for the second value","required":false},
+        {"name":"value3", "type":"string","info":"name for the third value","required":false},
+        {"name":"value4", "type":"string","info":"name for the fourth value","required":false},
+        {"name":"value5", "type":"string","info":"name for the fifth value","required":false},
+        {"name":"value6", "type":"string","info":"name for the sixth value","required":false},
+        {"name":"row", "type":"string","info":"name for the row","required":false}
+      ],
+        "output":[
+          {"name":"response", "type":"string"}
         ]
       }
     ]

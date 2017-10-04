@@ -45,7 +45,8 @@ PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
 # a dictionary of tuples { <methodname>: {<service_name>,<task_name>}} for those tasks that need further processing
 # before execution (e.g. checking un uploaded file extension)
 # the method is called for that specific couple of service/task
-CHECK_SERVICES = {'check_upload': {'database','upload'}}
+CHECK_SERVICES = {'check_file_upload': {'database','upload'},'check_getfields': {'database','getfields'},
+                  'check_data_upload': {'database','todatabase'}}
 
 #root folder containing uploaded data
 UPLOAD_ROOT = "/vagrant/code/pysdss/data/input/uploads/"
