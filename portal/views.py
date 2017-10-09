@@ -240,7 +240,7 @@ def check_params(s, request, verb="get"):
 
         # if the prameter is not there check if not required and there is a default value
         elif not input['required']:
-            if input['default']:  # if the parameter is not required there should be a default value
+            if input.get('default'):  # if the parameter is not required there should be a default value
                 if input["type"] == "number":
                     try:
                         float(input['default']) #this will raise error if not a number
