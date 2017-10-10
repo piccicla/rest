@@ -54,3 +54,15 @@ def todatabase(*args, **kw):  # the result must be a  list
 
     #print(kw)
     return db.upload_data(*args, **kw)
+
+@shared_task
+def getjson(*args, **kw):  # the result must be a  list
+
+    #print(kw)
+    return db.get_json(*args, **kw)
+
+@shared_task
+def getvmap(*args, **kw):  # the result must be a  list
+
+    #print(kw)
+    return db.get_vmap(*args, **kw)

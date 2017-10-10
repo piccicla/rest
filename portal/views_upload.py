@@ -161,13 +161,13 @@ class DataUploadView(APIView):
 
     #########tests
     #csv with 'row'
-    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' -F 'row=sensor_addr' http://localhost:8000/processing/todatabase
+    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'datasetid=1' -F 'lat=lat' -F 'lon=lng' -F 'value1=sf01' -F 'row=sensor_addr' http://localhost:8000/processing/todatabase
     #csv without 'row'
-    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' http://localhost:8000/todatabase
+    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=2017-07-25 To Kalon NDVI.csv' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'datasetid=1' -F 'lat=lat' -F 'lon=lng' -F 'value1=sf01' http://localhost:8000/todatabase
     #shapefile with 'row'
-    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=ToKalonNDVI.zip' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' -F 'row=sensor_add' http://localhost:8000/todatabase
+    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=ToKalonNDVI.zip' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'datasetid=1' -F 'lat=lat' -F 'lon=lng' -F 'value1=sf01' -F 'row=sensor_add' http://localhost:8000/todatabase
     #shapefile without 'row'
-    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=ToKalonNDVI.zip' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'iddataset=1' -F 'lat=lat' -F 'lon=lng' -F 'value=sf01' http://localhost:8000/todatabase
+    #curl -X  POST -H  'Content-Type:multipart/form-data' -F 'metatable=canopy' -F 'filename=ToKalonNDVI.zip' -F 'folderid=a5f9e0915ecb94449b26a8dc52b970cc0' -F 'datasetid=1' -F 'lat=lat' -F 'lon=lng' -F 'value1=sf01' http://localhost:8000/todatabase
 
 
     parser_classes = (MultiPartParser,FormParser, )
@@ -178,7 +178,7 @@ class DataUploadView(APIView):
 
             #check parameters
             metatable = request.data.get('metatable')
-            idd = request.data.get('iddataset')
+            idd = request.data.get('datasetid')
             lat = request.data.get('lat')
             lon = request.data.get('lon')
             value = request.data.get('value1')
