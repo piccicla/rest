@@ -148,3 +148,13 @@ def check_getvmap(request):
     # if no problem returns the folder ID and the file extension plus settings necessary to upload files to database
 
     return [True, {'METADATA_IDS':settings.METADATA_IDS}]
+
+
+def check_uploadids(request):
+    """
+    just return the UPLOAD_ROOT and UPLOAD_FORMATS
+    :param request:
+    :return:
+    """
+    # if no problem returns the folder ID and the file extension plus settings necessary to upload files to database
+    return [True, {'METADATA_DATA_TABLES':settings.METADATA_DATA_TABLES,'METADATA_IDS':settings.METADATA_IDS,'DATA_IDS':settings.DATA_IDS,"UPLOAD_ROOT" :settings.UPLOAD_ROOT}]

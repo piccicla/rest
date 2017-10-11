@@ -340,18 +340,24 @@ class TaskSync(APIView):    ##########testing rest parameters
 
         try:
 
-            if parameters:
+            if s[0]['name'] in settings.SKIP_CELERY:
+                #return Response({"success": True, "content": "hola"})
+                final_res = eval("mod." + s[0]['name'] + "(**parameters)")
 
-                # check there is no uploaded file
-                #for a in parameters:
-                 #   if (type(parameters[a])== InMemoryUploadedFile): print(a)
+            else:
+                if parameters:
 
-                #final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters).wait(timeout=None, propagate=True, interval=0.5)")
-                #asyncresult =eval("mod."+s[0]['name']+".apply_async( kwargs=parameters)")
-                # added serializer pickle to allow passing files uploaded from the client, the default json does not work
-                final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters, serializer='pickle').wait(timeout=None, propagate=True, interval=0.5)")
-            else: #no parameters are necessary
-                final_res = eval("mod."+s[0]['name']+".apply_async().wait(timeout=None, propagate=True, interval=0.5)")
+                    # check there is no uploaded file
+                    #for a in parameters:
+                     #   if (type(parameters[a])== InMemoryUploadedFile): print(a)
+
+                    #final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters).wait(timeout=None, propagate=True, interval=0.5)")
+                    #asyncresult =eval("mod."+s[0]['name']+".apply_async( kwargs=parameters)")
+                    # added serializer pickle to allow passing files uploaded from the client, the default json does not work
+                    final_res = eval("mod."+s[0]['name']+".apply_async( kwargs=parameters, serializer='pickle').wait(timeout=None, propagate=True, interval=0.5)")
+                else: #no parameters are necessary
+                    final_res = eval("mod."+s[0]['name']+".apply_async().wait(timeout=None, propagate=True, interval=0.5)")
+
 
             if final_res['success']:
                 return Response({"success": True, "content": final_res['content']})

@@ -66,3 +66,9 @@ def getvmap(*args, **kw):  # the result must be a  list
 
     #print(kw)
     return db.get_vmap(*args, **kw)
+
+@shared_task
+def uploadids(*args, **kw):  # the result must be a  list
+
+    #print(kw)
+    return db.upload_ids(*args, **kw)

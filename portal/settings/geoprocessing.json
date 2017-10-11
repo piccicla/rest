@@ -94,6 +94,52 @@
         "output":[
           {"name":"response", "type":"string"}
         ]
+      },
+      {
+        "name":"getjson",
+      "info":"gey a point layer in geojson format, by default get all the value fields, otherwise specify which field",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true},
+        {"name":"datasetid", "type":"string","info":"the unique dataset id returned by the upload service","required":true},
+        {"name":"values", "type":"string","info":"comma separated values to get, e.g. value1,value2","required":false},
+        {"name":"limit", "type":"number","info":"the max number of features returned by the query","required":false}
+      ],
+        "output":[
+          {"name":"geojson", "type":"json"}
+        ]
+      },
+      {
+        "name":"getvmap",
+      "info":"get a point layer in geojson format",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true},
+        {"name":"datasetid", "type":"string","info":"the unique dataset id returned by the upload service","required":true}
+      ],
+        "output":[
+          {"name":"vmap", "type":"json"}
+        ]
+      },
+      {
+        "name":"uploadids",
+      "info":"upload ids in order to select data for further processing, e.g. geo",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true},
+        {"name":"datasetid", "type":"string","info":"the unique dataset id returned by the upload service","required":true},
+        {"name":"ids", "type":"string","info":"ids for selection","required":true} ,
+        {"name":"folderid", "type":"string","info":"the unique folder id, if false a new id will be created","required":false},
+        {"name":"exclude", "type":"string","info":"pass any value to treat the ids as excluded values instead of included","required":false}
+      ],
+        "output":[
+          {"name": "folderid", "type": "string"},
+          {"name": "filename", "type": "string"},
+          {"name": "epsg", "type": "number"}
+        ]
       }
     ]
   },
