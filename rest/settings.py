@@ -49,7 +49,8 @@ CHECK_SERVICES = {'check_file_upload': {'database','upload'},'check_getfields': 
                   'check_data_upload': {'database','todatabase'},'check_getjson': {'database','getjson'},
                   'check_getvmap': {'database', 'getvmap'}, 'check_uploadids': {'database', 'uploadids'}}
 
-SKIP_CELERY = ['uploadids']
+#services that will be executed locally, skipping a call to the celery framework
+SKIP_CELERY = ['upload', 'getfields', 'todatabase', 'getjson', 'getvmap', 'uploadids']
 
 
 #root folder containing uploaded data
@@ -77,6 +78,13 @@ SENSOR_IDS = {"colorgrade": "id_cgrade","berrysize": "id_size","berrycount": "id
 
 
 
+###########################################
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8090'  #this is jsdss running locally
+)
+###############################
+
+
 
 
 # Application definition
@@ -88,11 +96,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'portal.apps.PortalConfig',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken'  #this is necessary to use token authentication
 ]
 
 MIDDLEWARE = [
+    ########this is used to allow requests from the local client during development  see https://github.com/ottoyiu/django-cors-headers/
+    'corsheaders.middleware.CorsMiddleware',  # see CORS_ORIGIN_WHITELIST,INSTALLED_APPS
 
     ####todo disable this in production, the server should be responsible for the zipped content?
     'django.middleware.gzip.GZipMiddleware',
