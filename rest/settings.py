@@ -47,10 +47,11 @@ PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
 # the method is called for that specific couple of service/task
 CHECK_SERVICES = {'check_file_upload': {'database','upload'},'check_getfields': {'database','getfields'},
                   'check_data_upload': {'database','todatabase'},'check_getjson': {'database','getjson'},
-                  'check_getvmap': {'database', 'getvmap'}, 'check_uploadids': {'database', 'uploadids'}}
+                  'check_getvmap': {'database', 'getvmap'}, 'check_uploadids': {'database', 'uploadids'},
+                  'check_gettools': {'database', 'gettools'}}
 
 #services that will be executed locally, skipping a call to the celery framework
-SKIP_CELERY = ['upload', 'getfields', 'todatabase', 'getjson', 'getvmap', 'uploadids']
+SKIP_CELERY = ['upload', 'getfields', 'todatabase', 'getjson', 'getvmap', 'uploadids', 'gettools']
 
 
 #root folder containing uploaded data
@@ -63,7 +64,7 @@ SHAPE_OPTIONAL_FILES = ["xml", "prj", "sbn", "sbx", "cpg"]
 #mandatory fields for metadata tables (Yield,Canopy, Soil, Sensor)
 METADATA_MANDATORY_FIELDS = ["metatable","toolid","datetime", "roworientation"]
 METADATA_ALL_FIELDS = ["metatable","toolid","datetime", "roworientation", "swathWidth", "ofset", "rowSpacing", "comments"]
-METADATA_FIELDS_TYPES = {"datetime":"string", "roworientation":"string", "swathWidth":"number", "ofset":"number", "rowSpacing":"number", "comments":"string"}
+METADATA_FIELDS_TYPES = {"datetime":"string", "roworientation":"string", "swathwidth":"number", "ofset":"number", "rowspacing":"number", "comments":"string"}
 #link between metadata tables names and  dataset table names
 METADATA_DATA_TABLES = {"yield": "yielddatum", "soil": "soildatum", "canopy": "canodatum", "sensor": "sensodatum", "sensodatum":["berrycount", "berrysize", "colorgrade"]}
 #id fields for metadata tables
@@ -76,7 +77,8 @@ DATA_IDS = {"yield": "id_ydata","soil": "id_sdata","canopy": "id_cdata","sensor"
 # id fields for sensor subtables
 SENSOR_IDS = {"colorgrade": "id_cgrade","berrysize": "id_size","berrycount": "id_count"}
 
-
+#table name and id  for tool tables
+TOOLS = {"yield": ["yieldtype","id_ytype"],"soil": ["soiltype","id_stype"],"canopy": ["canotype","id_ctype"],"sensor": ["sensotype","id_stype"]}
 
 ###########################################
 CORS_ORIGIN_WHITELIST = (
@@ -137,7 +139,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rest.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
