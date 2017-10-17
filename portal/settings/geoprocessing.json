@@ -124,6 +124,18 @@
         ]
       },
       {
+        "name":"gettools",
+      "info":"get id and type for the available tools",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true}
+      ],
+        "output":[
+          {"name":"tools", "type":"list"}
+        ]
+      },
+      {
         "name":"uploadids",
       "info":"upload ids in order to select data for further processing, e.g. geo",
       "location":"portal.tasks",

@@ -72,3 +72,9 @@ def uploadids(*args, **kw):  # the result must be a  list
 
     #print(kw)
     return db.upload_ids(*args, **kw)
+
+@shared_task
+def gettools(*args, **kw):  # the result must be a  list
+
+    #print(kw)
+    return db.get_tools(*args, **kw)

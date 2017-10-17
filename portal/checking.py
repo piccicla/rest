@@ -107,6 +107,15 @@ def check_getfields(request):
     return [True, {'UPLOAD_ROOT': settings.UPLOAD_ROOT,'UPLOAD_FORMATS': settings.UPLOAD_FORMATS}]
 
 
+def check_gettools(request):
+    """
+    just return the TOOLS
+    :param request:
+    :return:
+    """
+    # if no problem returns the folder ID and the file extension plus settings necessary to upload files to database
+    return [True, {'TOOLS': settings.TOOLS}]
+
 def check_data_upload(request):
     """
     Check the value1 and the format, add additional rarameters
