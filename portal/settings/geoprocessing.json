@@ -152,6 +152,45 @@
           {"name": "filename", "type": "string"},
           {"name": "epsg", "type": "number"}
         ]
+      },
+      {
+        "name":"getdatasets",
+      "info":"get the datasets available on the database, the id and datetime are returned",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true}
+        ],
+        "output":[
+          {"name":"datasets", "type":"list"}
+        ]
+      },
+      {
+        "name":"getdatasetinfo",
+      "info":"get some additional info for a selected dataset,  number of points, tool name,roworientation, swathwidth,offset,rowspacing, values available, comments",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true},
+        {"name":"datasetid", "type":"string","info":"the unique dataset id","required":true}
+      ],
+        "output":[
+          {"name":"datasetinfo", "type":"json"}
+        ]
+      },
+      {
+        "name":"addtool",
+      "info":"add a new tool",
+      "location":"portal.tasks",
+      "type":"sync",
+      "input":[
+        {"name":"metatable", "type":"string","info":"metadata table","required":true},
+        {"name":"toolname", "type":"string","info":"name for the new tool","required":true},
+        {"name":"comments", "type":"text","info":"","required":false, "default":""}
+        ],
+        "output":[
+          {"name":"response", "type":"string"}
+        ]
       }
     ]
   },

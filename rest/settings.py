@@ -48,10 +48,11 @@ PROCESSING_SETTINGS_URL = "/settings/geoprocessing.json"
 CHECK_SERVICES = {'check_file_upload': {'database','upload'},'check_getfields': {'database','getfields'},
                   'check_data_upload': {'database','todatabase'},'check_getjson': {'database','getjson'},
                   'check_getvmap': {'database', 'getvmap'}, 'check_uploadids': {'database', 'uploadids'},
-                  'check_gettools': {'database', 'gettools'}}
+                  'check_gettools': {'database', 'gettools'},'check_getdatasets':{'database', 'getdatasets'},
+                  'check_getdatasetinfo':{'database', 'getdatasetinfo'},'check_addtool':{'database', 'addtool'}  }
 
 #services that will be executed locally, skipping a call to the celery framework
-SKIP_CELERY = ['upload', 'getfields', 'todatabase', 'getjson', 'getvmap', 'uploadids', 'gettools']
+SKIP_CELERY = ['upload', 'getfields', 'todatabase', 'getjson', 'getvmap', 'uploadids', 'gettools','getdatasets','getdatasetinfo','addtool']
 
 
 #root folder containing uploaded data

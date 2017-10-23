@@ -138,7 +138,7 @@ def check_data_upload(request):
 
 def check_getjson(request):
     """
-    just return the UPLOAD_ROOT and UPLOAD_FORMATS
+    Return the METADATA_DATA_TABLES  METADATA_IDS  DATA_IDS
     :param request:
     :return:
     """
@@ -150,7 +150,7 @@ def check_getjson(request):
 
 def check_getvmap(request):
     """
-    just return the UPLOAD_ROOT and UPLOAD_FORMATS
+    just return  the METADATA_IDS
     :param request:
     :return:
     """
@@ -161,9 +161,36 @@ def check_getvmap(request):
 
 def check_uploadids(request):
     """
-    just return the UPLOAD_ROOT and UPLOAD_FORMATS
+    Return the  METADATA_DATA_TABLES, METADATA_IDS,  DATA_IDS, UPLOAD_ROOT
     :param request:
     :return:
     """
     # if no problem returns the folder ID and the file extension plus settings necessary to upload files to database
     return [True, {'METADATA_DATA_TABLES':settings.METADATA_DATA_TABLES,'METADATA_IDS':settings.METADATA_IDS,'DATA_IDS':settings.DATA_IDS,"UPLOAD_ROOT" :settings.UPLOAD_ROOT}]
+
+
+
+def check_getdatasets(request):
+    """
+    just return the METADATA_IDS
+    :param request:
+    :return:
+    """
+    return [True, {'METADATA_IDS':settings.METADATA_IDS}]
+
+
+def check_getdatasetinfo(request):
+    """
+    Return the METADATA_DATA_TABLES,METADATA_IDS,TOOLS
+    :param request:
+    :return:
+    """
+    return [True,{'METADATA_DATA_TABLES':settings.METADATA_DATA_TABLES,'METADATA_IDS':settings.METADATA_IDS, 'TOOLS': settings.TOOLS}]
+
+def check_addtool(request):
+    """
+    just return the TOOLS
+    :param request:
+    :return:
+    """
+    return [True, {'TOOLS': settings.TOOLS}]

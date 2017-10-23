@@ -44,37 +44,58 @@ def upload(*args, **kw):  # the result must be a  list
     #return [{"name":"", "type":"string", "kwargs":kw['METADATA_ID_TYPES']}] #test kw are there
 
 @shared_task
-def getfields(*args, **kw):  # the result must be a  list
+def getfields(*args, **kw):
 
     #print(kw)
     return db.get_fields(*args, **kw)
 
 @shared_task
-def todatabase(*args, **kw):  # the result must be a  list
+def todatabase(*args, **kw):
 
     #print(kw)
     return db.upload_data(*args, **kw)
 
 @shared_task
-def getjson(*args, **kw):  # the result must be a  list
+def getjson(*args, **kw):
 
     #print(kw)
     return db.get_json(*args, **kw)
 
 @shared_task
-def getvmap(*args, **kw):  # the result must be a  list
+def getvmap(*args, **kw):
 
     #print(kw)
     return db.get_vmap(*args, **kw)
 
 @shared_task
-def uploadids(*args, **kw):  # the result must be a  list
+def uploadids(*args, **kw):
 
     #print(kw)
     return db.upload_ids(*args, **kw)
 
 @shared_task
-def gettools(*args, **kw):  # the result must be a  list
+def gettools(*args, **kw):
 
     #print(kw)
     return db.get_tools(*args, **kw)
+
+@shared_task
+def getdatasets(*args, **kw):
+
+    #print(kw)
+    return db.get_datasets(*args, **kw)
+
+@shared_task
+def getdatasetinfo(*args, **kw):
+
+    #print(kw)
+    return db.get_dataset_info(*args, **kw)
+
+@shared_task
+def addtool(*args, **kw):
+
+    #print(kw)
+    return db.add_tool(*args, **kw)
+
+
+
